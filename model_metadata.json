@@ -1,0 +1,116 @@
+{
+  "best_model": "Gradient Boosting",
+  "test_r2": 0.9858,
+  "test_mae": 75,
+  "holdout_r2": 0.7292,
+  "holdout_mae": 99,
+  "comparison": [
+    {
+      "model": "Random Forest",
+      "r2": 0.9841,
+      "mae": 77,
+      "cv_r2": 0.9928,
+      "cv_std": 0.0011
+    },
+    {
+      "model": "Gradient Boosting",
+      "r2": 0.9858,
+      "mae": 75,
+      "cv_r2": 0.9934,
+      "cv_std": 0.0004
+    },
+    {
+      "model": "Linear Regression",
+      "r2": 0.6874,
+      "mae": 337,
+      "cv_r2": 0.847,
+      "cv_std": 0.0066
+    },
+    {
+      "model": "Ridge Regression",
+      "r2": 0.6142,
+      "mae": 359,
+      "cv_r2": 0.8418,
+      "cv_std": 0.0093
+    }
+  ],
+  "holdout_results": [
+    {
+      "village": "Halkarni",
+      "actual": 719,
+      "predicted": 780,
+      "error_pct": 8.5
+    },
+    {
+      "village": "Dajipur",
+      "actual": 281,
+      "predicted": 330,
+      "error_pct": 17.4
+    },
+    {
+      "village": "Tilari",
+      "actual": 283,
+      "predicted": 304,
+      "error_pct": 7.4
+    },
+    {
+      "village": "Ningudage",
+      "actual": 370,
+      "predicted": 642,
+      "error_pct": 73.5
+    },
+    {
+      "village": "Lat",
+      "actual": 716,
+      "predicted": 745,
+      "error_pct": 4.1
+    }
+  ],
+  "feature_importance": {
+    "Area_Type": 63.98,
+    "Land_Type": 20.95,
+    "Location_Score": 4.86,
+    "Market_Access": 2.21,
+    "Hospital_Access": 2.19,
+    "Taluka": 1.31,
+    "Connectivity": 0.93,
+    "School_Access": 0.89,
+    "Distance_to_Highway": 0.76,
+    "Distance_to_City_Center": 0.48,
+    "City_Village": 0.46,
+    "City_Proximity": 0.37,
+    "Growth_Rate": 0.26,
+    "Risk_Score": 0.14,
+    "Area_sqft": 0.12,
+    "Flood_Risk": 0.1,
+    "Crime_Level": 0.0
+  },
+  "cat_cols": [
+    "Taluka",
+    "City_Village",
+    "Area_Type",
+    "Land_Type"
+  ],
+  "num_cols": [
+    "Area_sqft",
+    "Flood_Risk",
+    "Crime_Level",
+    "Market_Access",
+    "School_Access",
+    "Hospital_Access",
+    "Growth_Rate",
+    "Distance_to_City_Center",
+    "Distance_to_Highway",
+    "Location_Score",
+    "Connectivity",
+    "City_Proximity",
+    "Risk_Score"
+  ],
+  "holdout_villages": [
+    "Halkarni",
+    "Dajipur",
+    "Tilari",
+    "Ningudage",
+    "Lat"
+  ]
+}

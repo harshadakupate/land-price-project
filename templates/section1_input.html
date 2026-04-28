@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 1 — Land Prediction</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<div class="header">
+    <h1>📊 Land Price Prediction</h1>
+    <p>Select location and area — land type auto-detected by system</p>
+</div>
+<a class="back-btn" onclick="go('/dashboard')">← Back</a>
+
+<div class="card form-box">
+    <form action="/predict1" method="POST">
+        <label>📍 District</label>
+        <input type="text" value="Kolhapur" disabled style="opacity:0.5;">
+
+        <label>📍 Taluka</label>
+        <select name="taluka" id="taluka" required>
+            <option value="">— Select Taluka —</option>
+            {% for t in talukas %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+        </select>
+
+        <label>🏙️ City / Village</label>
+        <select name="city" id="city" required>
+            <option value="">— Select City —</option>
+        </select>
+
+        <label>📐 Plot Area (sqft)</label>
+        <input type="number" name="area" placeholder="e.g. 1500" min="100" required>
+
+        <label>👤 Buyer Gender</label>
+        <select name="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female (lower stamp duty)</option>
+        </select>
+        <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:-6px;">
+            Maharashtra: Female buyers pay 1% less stamp duty
+        </p>
+
+        <button type="submit">🚀 Analyze Now</button>
+    </form>
+</div>
+
+<script>
+function go(p) { window.location.href = p; }
+$("#taluka").change(function() {
+    $.post("/get_cities", {taluka:$(this).val()}, function(data) {
+        let c = $("#city");
+        c.empty().append('<option value="">— Select City —</option>');
+        data.forEach(v => c.append(`<option value="${v}">${v}</option>`));
+    });
+});
+</script>
+</body>
+</html>

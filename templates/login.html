@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Land AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="login-container">
+    <div class="card login-card">
+        <div class="logo">🏡 Land AI</div>
+        <div class="logo-sub">Smart Land Analysis System</div>
+
+        <form method="POST" action="/">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Enter username" required autocomplete="off">
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required>
+
+            {% if error %}
+            <p style="color:#ff6b6b; margin: 10px 0; font-size:14px;">⚠️ {{ error }}</p>
+            {% endif %}
+
+            <button type="submit">🚀 Login</button>
+        </form>
+
+        <p style="margin-top:20px; font-size:12px; color:rgba(255,255,255,0.35);">
+            Demo: admin / 1234
+        </p>
+    </div>
+</div>
+</body>
+</html>

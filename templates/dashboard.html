@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Land AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/script.js" defer></script>
+</head>
+<body>
+<div class="header">
+    <h1>🚀 Land Intelligence System</h1>
+    <p>Kolhapur District — AI-Powered Property Analytics</p>
+</div>
+
+<!-- Model Stats Bar -->
+<div style="background:rgba(0,198,255,0.06); border-bottom:1px solid rgba(0,198,255,0.15);
+            padding:10px 24px; text-align:center; font-size:13px; color:rgba(255,255,255,0.7);">
+    🏆 Best Model: <strong style="color:#00c6ff;">{{ meta.best_model }}</strong>
+    &nbsp;|&nbsp; Test R²: <strong style="color:#00ff99;">{{ meta.test_r2 }}</strong>
+    &nbsp;|&nbsp; Holdout R²: <strong style="color:#ffc800;">{{ meta.holdout_r2 }}</strong>
+    &nbsp;|&nbsp; MAE: <strong>₹{{ "{:,}".format(meta.test_mae) }}/sqft</strong>
+    &nbsp;|&nbsp;
+    <a href="/model_report" style="color:#00c6ff; text-decoration:underline;">📊 View Full Model Report</a>
+</div>
+
+<div class="dashboard-container">
+    <div class="card section-card" onclick="go('/section1')">
+        <span class="icon">📊</span>
+        <h2>Section 1</h2>
+        <p>Land Price Prediction<br>
+        <small style="color:rgba(255,255,255,0.45);">ML prediction · Confidence range · Investment signal</small></p>
+    </div>
+    <div class="card section-card" onclick="go('/section2')">
+        <span class="icon">💡</span>
+        <h2>Section 2</h2>
+        <p>Smart Recommendation<br>
+        <small style="color:rgba(255,255,255,0.45);">Budget filters · Priority-based · Live map</small></p>
+    </div>
+    <div class="card section-card" onclick="go('/section3')">
+        <span class="icon">⚖️</span>
+        <h2>Section 3</h2>
+        <p>Compare Locations<br>
+        <small style="color:rgba(255,255,255,0.45);">Side-by-side · Buy signal · Confidence range</small></p>
+    </div>
+    <div class="card section-card" onclick="go('/model_report')">
+        <span class="icon">🔬</span>
+        <h2>Model Report</h2>
+        <p>AI Performance Dashboard<br>
+        <small style="color:rgba(255,255,255,0.45);">Model comparison · Holdout · Feature importance</small></p>
+    </div>
+</div>
+
+<div class="logout-wrap" style="margin-top:30px;">
+    <a href="/logout"><button>Logout</button></a>
+</div>
+</body>
+</html>

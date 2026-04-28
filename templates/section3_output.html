@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparison — Land AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="header">
+    <h1>⚖️ Comparison Dashboard</h1>
+    <p>{{ city1 }} vs {{ city2 }} | {{ area }} sqft | 👤 {{ gender }}</p>
+</div>
+<a class="back-btn" onclick="window.history.back()">← Back</a>
+
+<!-- SCORE + SIGNAL CARDS -->
+<div class="compare-grid" style="max-width:900px;margin:0 auto;padding:20px 24px;">
+
+    <div class="card" style="text-align:center;">
+        <div class="section-title" style="color:#00c6ff;">📍 {{ city1 }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:10px;">{{ taluka1 }} Taluka</div>
+        <div style="font-size:68px;font-weight:900;color:#00c6ff;line-height:1;">{{ score1 }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:10px;">out of 100</div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:8px;height:8px;overflow:hidden;margin-bottom:12px;">
+            <div style="width:{{ score1 }}%;background:linear-gradient(90deg,#00c6ff,#0072ff);height:100%;border-radius:8px;"></div>
+        </div>
+        <!-- Investment Signal -->
+        <div style="padding:10px;border-radius:8px;border:2px solid {{ sc1 }};background:rgba(0,0,0,0.2);margin-bottom:10px;">
+            <div style="font-size:16px;font-weight:800;color:{{ sc1 }};">{{ signal1 }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;">{{ sr1 }}</div>
+        </div>
+        <!-- Confidence interval -->
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);">
+            ₹{{ "{:,}".format(rate1) }}/sqft
+            <span style="font-size:11px;color:rgba(255,255,255,0.35);display:block;">
+                80% CI: ₹{{ "{:,}".format(lo1) }} – ₹{{ "{:,}".format(hi1) }}
+            </span>
+        </div>
+        {% if score1 > score2 %}<div style="margin-top:10px;"><span class="better-badge">🏆 WINNER</span></div>{% endif %}
+        {% if adv1 %}
+        <div style="margin-top:12px;text-align:left;">
+            {% for a in adv1 %}<div style="font-size:12px;padding:4px 0;color:rgba(255,255,255,0.75);">✔ {{ a }}</div>{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card" style="text-align:center;">
+        <div class="section-title" style="color:#ff6a00;">📍 {{ city2 }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:10px;">{{ taluka2 }} Taluka</div>
+        <div style="font-size:68px;font-weight:900;color:#ff6a00;line-height:1;">{{ score2 }}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:10px;">out of 100</div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:8px;height:8px;overflow:hidden;margin-bottom:12px;">
+            <div style="width:{{ score2 }}%;background:linear-gradient(90deg,#ff6a00,#ff0080);height:100%;border-radius:8px;"></div>
+        </div>
+        <div style="padding:10px;border-radius:8px;border:2px solid {{ sc2 }};background:rgba(0,0,0,0.2);margin-bottom:10px;">
+            <div style="font-size:16px;font-weight:800;color:{{ sc2 }};">{{ signal2 }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;">{{ sr2 }}</div>
+        </div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);">
+            ₹{{ "{:,}".format(rate2) }}/sqft
+            <span style="font-size:11px;color:rgba(255,255,255,0.35);display:block;">
+                80% CI: ₹{{ "{:,}".format(lo2) }} – ₹{{ "{:,}".format(hi2) }}
+            </span>
+        </div>
+        {% if score2 > score1 %}<div style="margin-top:10px;"><span class="better-badge" style="background:linear-gradient(45deg,#ff6a00,#ff0080);">🏆 WINNER</span></div>{% endif %}
+        {% if adv2 %}
+        <div style="margin-top:12px;text-align:left;">
+            {% for a in adv2 %}<div style="font-size:12px;padding:4px 0;color:rgba(255,255,255,0.75);">✔ {{ a }}</div>{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- COST COMPARISON -->
+<div class="container">
+    <div class="card">
+        <div class="section-title">💰 Cost — {{ city1 }} ({{ gender }})</div>
+        <div class="summary-row"><span>Rate/sqft</span><span style="color:#00c6ff;">₹{{ "{:,}".format(rate1) }}</span></div>
+        <div class="summary-row"><span>Land Cost</span><span>₹ {{ "{:,}".format(lc1) }}</span></div>
+        <div class="summary-row"><span>Stamp Duty ({{ sp1 }}%)</span><span>₹ {{ "{:,}".format(sa1) }}</span></div>
+        <div class="summary-row"><span>Registration</span><span>₹ {{ "{:,}".format(ra1) }}</span></div>
+        <div class="summary-row"><span>Total</span><span>₹ {{ "{:,}".format(tot1) }}</span></div>
+        <span class="stat-badge">{{ growth1 }}% growth/yr</span>
+    </div>
+
+    <div class="card">
+        <div class="section-title">💰 Cost — {{ city2 }} ({{ gender }})</div>
+        <div class="summary-row"><span>Rate/sqft</span><span style="color:#ff6a00;">₹{{ "{:,}".format(rate2) }}</span></div>
+        <div class="summary-row"><span>Land Cost</span><span>₹ {{ "{:,}".format(lc2) }}</span></div>
+        <div class="summary-row"><span>Stamp Duty ({{ sp2 }}%)</span><span>₹ {{ "{:,}".format(sa2) }}</span></div>
+        <div class="summary-row"><span>Registration</span><span>₹ {{ "{:,}".format(ra2) }}</span></div>
+        <div class="summary-row"><span>Total</span><span>₹ {{ "{:,}".format(tot2) }}</span></div>
+        <span class="stat-badge">{{ growth2 }}% growth/yr</span>
+    </div>
+
+    <!-- Attribute table -->
+    <div class="card">
+        <div class="section-title">📋 Attribute Comparison</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                    <th style="text-align:left;padding:6px 0;color:rgba(255,255,255,0.4);">Attribute</th>
+                    <th style="text-align:center;padding:6px 0;color:#00c6ff;">{{ city1 }}</th>
+                    <th style="text-align:center;padding:6px 0;color:#ff6a00;">{{ city2 }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key in details1 %}
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <td style="padding:7px 0;color:rgba(255,255,255,0.6);">{{ key }}</td>
+                    <td style="text-align:center;padding:7px 0;color:white;">{{ details1[key] }}</td>
+                    <td style="text-align:center;padding:7px 0;color:white;">{{ details2[key] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- CHARTS + WINNER -->
+<div class="container">
+    <div class="card">
+        <div class="section-title">📡 Feature Radar</div>
+        <canvas id="radarChart"></canvas>
+    </div>
+
+    <div class="card">
+        <div class="section-title">📈 5-Year Value Projection</div>
+        <canvas id="lineChart"></canvas>
+    </div>
+
+    <div class="card winner-card">
+        <div style="font-size:34px;margin-bottom:8px;">🏆</div>
+        <div class="section-title" style="font-size:17px;color:white;">Overall Best Choice</div>
+        <h2 style="color:#00c6ff;font-size:22px;margin:8px 0;">{{ better }}</h2>
+        <p style="color:rgba(255,255,255,0.5);font-size:13px;">
+            {{ better_num }} wins with score {{ score1 if better_num=="Location 1" else score2 }}/100
+        </p>
+        <ul class="winner-reasons" style="margin-top:14px;">
+            {% for r in reasons %}<li>{{ r }}</li>{% endfor %}
+        </ul>
+        <div style="margin-top:14px;padding:10px;background:rgba(255,255,255,0.05);
+                    border-radius:8px;font-size:12px;color:rgba(255,255,255,0.5);">
+            📌 Score weights: Growth 35% · Hospital 15% · Market 15% ·
+            Safety 15% · School 10% · Connectivity 10%
+        </div>
+    </div>
+</div>
+
+<!-- Cost bar chart -->
+<div class="container-full" style="padding:0 24px 20px;">
+    <div class="card">
+        <div class="section-title">📊 Total Cost Comparison</div>
+        <canvas id="barChart" style="max-height:220px;"></canvas>
+    </div>
+</div>
+
+<div class="logout-wrap"><a href="/dashboard"><button>🏠 Dashboard</button></a></div>
+
+<script>
+new Chart(document.getElementById("barChart"),{
+    type:'bar',
+    data:{labels:["{{ city1 }}","{{ city2 }}"],
+        datasets:[{label:"Total Cost (₹)",data:[{{ tot1 }},{{ tot2 }}],
+            backgroundColor:["rgba(0,198,255,0.7)","rgba(255,106,0,0.7)"],borderRadius:8}]},
+    options:{plugins:{legend:{labels:{color:"rgba(255,255,255,0.8)"}}},
+        scales:{x:{ticks:{color:"rgba(255,255,255,0.7)"},grid:{color:"rgba(255,255,255,0.06)"}},
+                y:{ticks:{color:"rgba(255,255,255,0.7)"},grid:{color:"rgba(255,255,255,0.06)"}}}}
+});
+
+new Chart(document.getElementById("radarChart"),{
+    type:'radar',
+    data:{
+        labels:["Hospital","School","Market","Safety","Connectivity","Growth"],
+        datasets:[
+            {label:"{{ city1 }}",data:{{ params1 }},backgroundColor:"rgba(0,198,255,0.2)",
+             borderColor:"#00c6ff",pointBackgroundColor:"#00c6ff",borderWidth:2},
+            {label:"{{ city2 }}",data:{{ params2 }},backgroundColor:"rgba(255,106,0,0.2)",
+             borderColor:"#ff6a00",pointBackgroundColor:"#ff6a00",borderWidth:2}
+        ]
+    },
+    options:{scales:{r:{min:0,max:10,
+        ticks:{color:"rgba(255,255,255,0.4)",stepSize:2},
+        grid:{color:"rgba(255,255,255,0.1)"},
+        pointLabels:{color:"rgba(255,255,255,0.8)",font:{size:11}}}},
+        plugins:{legend:{labels:{color:"rgba(255,255,255,0.8)"}}}}
+});
+
+new Chart(document.getElementById("lineChart"),{
+    type:'line',
+    data:{labels:["Year 1","Year 2","Year 3","Year 4","Year 5"],
+        datasets:[
+            {label:"{{ city1 }}",data:{{ trend1 }},borderColor:"#00c6ff",
+             backgroundColor:"rgba(0,198,255,0.08)",pointBackgroundColor:"#00c6ff",
+             fill:true,tension:0.4,borderWidth:2},
+            {label:"{{ city2 }}",data:{{ trend2 }},borderColor:"#ff6a00",
+             backgroundColor:"rgba(255,106,0,0.08)",pointBackgroundColor:"#ff6a00",
+             fill:true,tension:0.4,borderWidth:2}
+        ]},
+    options:{plugins:{legend:{labels:{color:"rgba(255,255,255,0.8)"}}},
+        scales:{x:{ticks:{color:"rgba(255,255,255,0.6)"},grid:{color:"rgba(255,255,255,0.06)"}},
+                y:{ticks:{color:"rgba(255,255,255,0.6)"},grid:{color:"rgba(255,255,255,0.06)"}}}}
+});
+</script>
+</body>
+</html>

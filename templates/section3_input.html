@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 3 — Compare Locations</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<div class="header">
+    <h1>⚖️ Location Comparison</h1>
+    <p>Side-by-side AI analysis with investment signal and confidence range</p>
+</div>
+<a class="back-btn" onclick="window.location.href='/dashboard'">← Back</a>
+
+<form action="/predict3" method="POST">
+    <div class="compare-grid">
+        <div class="card">
+            <div class="section-title" style="color:#00c6ff;">📍 Location 1</div>
+            <label>Taluka</label>
+            <select name="taluka1" class="taluka-sel" data-target="city1" required>
+                <option value="">— Select Taluka —</option>
+                {% for t in talukas %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+            </select>
+            <label>City / Village</label>
+            <select name="city1" id="city1" required>
+                <option value="">— Select City —</option>
+            </select>
+        </div>
+        <div class="card">
+            <div class="section-title" style="color:#ff6a00;">📍 Location 2</div>
+            <label>Taluka</label>
+            <select name="taluka2" class="taluka-sel" data-target="city2" required>
+                <option value="">— Select Taluka —</option>
+                {% for t in talukas %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+            </select>
+            <label>City / Village</label>
+            <select name="city2" id="city2" required>
+                <option value="">— Select City —</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="container-full">
+        <div class="card form-box" style="margin:0 auto;">
+            <label>📐 Plot Area (sqft)</label>
+            <input type="number" name="area" placeholder="e.g. 1500" min="100" required>
+
+            <label>👤 Buyer Gender</label>
+            <select name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female (lower stamp duty)</option>
+            </select>
+            <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:-6px;">
+                Land type is auto-detected from each location's area classification.
+            </p>
+            <button type="submit">🚀 Compare Now</button>
+        </div>
+    </div>
+</form>
+
+<script>
+$(".taluka-sel").change(function() {
+    let t = $(this).data("target"), v = $(this).val();
+    $.post("/get_cities", {taluka:v}, function(data) {
+        let s = $("#"+t);
+        s.empty().append('<option value="">— Select City —</option>');
+        data.forEach(c => s.append(`<option value="${c}">${c}</option>`));
+    });
+});
+</script>
+</body>
+</html>

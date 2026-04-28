@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations — Land AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="header">
+    <h1>🏆 Top Recommended Locations</h1>
+    <p>Budget: ₹ {{ "{:,}".format(budget) }} | Plot: {{ area_needed }} sqft | Priority: {{ priority|capitalize }}</p>
+</div>
+<a class="back-btn" onclick="window.history.back()">← Refine</a>
+
+{% if results %}
+
+<!-- LEAFLET MAP (Improvement 4) -->
+<div class="container-full" style="padding:0 24px 20px;">
+    <div class="card">
+        <div class="section-title">🗺️ Location Map</div>
+        <div id="map" style="height:380px; border-radius:10px; z-index:1;"></div>
+    </div>
+</div>
+
+<!-- LOCATION CARDS -->
+<div class="container">
+{% for r in results %}
+<div class="card location-card">
+    <div class="rank-badge">{{ loop.index }}</div>
+    <div class="section-title" style="padding-right:40px;">📍 {{ r.City_Village }}</div>
+    <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:12px;">
+        {{ r.Taluka }} · <span style="color:#00c6ff;">{{ r.Area_Type }}</span>
+    </p>
+
+    <!-- Cost estimate box -->
+    <div style="background:rgba(0,198,255,0.08);border-radius:10px;padding:12px;
+                border:1px solid rgba(0,198,255,0.2);margin-bottom:14px;">
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">
+            Est. cost for {{ area_needed }} sqft ({{ gender }} buyer)
+        </div>
+        <div style="font-size:22px;font-weight:800;color:#00c6ff;">₹ {{ "{:,}".format(r.Total_Est) }}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">
+            ₹{{ r.Rate_per_sqft }}/sqft + Stamp {{ r.Stamp_Pct }}% ₹{{ "{:,}".format(r.Stamp) }} + Reg ₹{{ "{:,}".format(r.Reg) }}
+        </div>
+    </div>
+
+    <!-- Key metrics -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);">GROWTH</div>
+            <div style="font-size:17px;font-weight:700;
+                color:{% if r.Growth_Pct>10 %}#00ff99{% elif r.Growth_Pct>6 %}#ffc800{% else %}#ff6b6b{% endif %};">
+                {{ r.Growth_Pct }}%/yr</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);">CRIME</div>
+            <div style="font-size:17px;font-weight:700;
+                color:{% if r.Crime_Num==1 %}#00ff99{% elif r.Crime_Num==2 %}#ffc800{% else %}#ff6b6b{% endif %};">
+                {{ r.Crime_Level }}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);">FLOOD</div>
+            <div style="font-size:17px;font-weight:700;
+                color:{% if r.Flood_Risk=='Low' %}#00ff99{% elif r.Flood_Risk=='Medium' %}#ffc800{% else %}#ff6b6b{% endif %};">
+                {{ r.Flood_Risk }}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:10px;text-align:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);">DIST. CITY</div>
+            <div style="font-size:17px;font-weight:700;color:white;">{{ r.Dist_City }} km</div>
+        </div>
+    </div>
+
+    <div class="summary-row"><span>🏥 Hospital Access</span><span>{{ r.Hospital_Access }}/10</span></div>
+    <div class="summary-row"><span>🏫 School Access</span><span>{{ r.School_Access }}/10</span></div>
+    <div class="summary-row"><span>🛒 Market Access</span><span>{{ r.Market_Access }}/10</span></div>
+    <div class="summary-row"><span>🛣️ Distance to Highway</span><span>{{ r.Dist_Hwy }} km</span></div>
+
+    <!-- Score bar -->
+    <div style="margin-top:12px;">
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">
+            Match Score: <strong style="color:#00c6ff;">{{ r.Score }}</strong>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:6px;height:7px;">
+            <div style="width:{{ [r.Score*10,100]|min }}%;background:linear-gradient(90deg,#00c6ff,#0072ff);height:100%;border-radius:6px;"></div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+<!-- Chart -->
+<div class="container-full" style="padding:0 24px 20px;">
+    <div class="card">
+        <div class="section-title">📊 Location Comparison</div>
+        <canvas id="barChart" style="max-height:260px;"></canvas>
+    </div>
+</div>
+
+<script>
+// LEAFLET MAP
+const map = L.map('map').setView([16.70, 74.24], 9);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+const colors = ['#00c6ff','#00ff99','#ffc800','#ff6a00','#ff0080'];
+const results = [
+    {% for r in results %}
+    {name:"{{ r.City_Village }}", lat:{{ r.Lat }}, lng:{{ r.Lng }},
+     growth:"{{ r.Growth_Pct }}%", cost:"₹{{ "{:,}".format(r.Total_Est) }}", rank:{{ loop.index }}},
+    {% endfor %}
+];
+
+results.forEach((r, i) => {
+    const icon = L.divIcon({
+        html: `<div style="background:${colors[i]};color:#000;border-radius:50%;
+               width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+               font-weight:800;font-size:14px;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)">
+               ${r.rank}</div>`,
+        className: '', iconSize: [32,32], iconAnchor: [16,16]
+    });
+    L.marker([r.lat, r.lng], {icon})
+     .addTo(map)
+     .bindPopup(`<b>#${r.rank} ${r.name}</b><br>Growth: ${r.growth}<br>Est. Cost: ${r.cost}`);
+});
+
+// Bar chart
+new Chart(document.getElementById("barChart"), {
+    type:'bar',
+    data:{
+        labels:[{% for r in results %}"{{ r.City_Village }}",{% endfor %}],
+        datasets:[
+            {label:"Growth %/yr", data:[{% for r in results %}{{ r.Growth_Pct }},{% endfor %}],
+             backgroundColor:"rgba(0,198,255,0.7)", borderRadius:6, yAxisID:'y'},
+            {label:"Hospital /10", data:[{% for r in results %}{{ r.Hospital_Access }},{% endfor %}],
+             backgroundColor:"rgba(0,255,153,0.7)", borderRadius:6, yAxisID:'y'},
+        ]
+    },
+    options:{plugins:{legend:{labels:{color:"rgba(255,255,255,0.8)"}}},
+        scales:{x:{ticks:{color:"rgba(255,255,255,0.7)"},grid:{color:"rgba(255,255,255,0.06)"}},
+                y:{ticks:{color:"rgba(255,255,255,0.7)"},grid:{color:"rgba(255,255,255,0.06)"}}}}
+});
+</script>
+
+{% else %}
+<div class="container-full">
+    <div class="card error-box" style="text-align:center;">
+        <h2 style="color:#ff6b6b;">😕 No Locations Found</h2>
+        <p style="margin-top:12px;color:rgba(255,255,255,0.6);">Try increasing budget, relaxing distance limit, or removing filters.</p>
+        <a href="/section2"><button style="margin-top:20px;width:auto;padding:10px 24px;">🔍 Try Again</button></a>
+    </div>
+</div>
+{% endif %}
+
+<div class="logout-wrap"><a href="/dashboard"><button>🏠 Dashboard</button></a></div>
+</body>
+</html>

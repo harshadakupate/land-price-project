@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 2 — Smart Recommendation</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="header">
+    <h1>💡 Smart Land Recommendation</h1>
+    <p>Tell us your needs — we find the best locations with live map</p>
+</div>
+<a class="back-btn" onclick="window.location.href='/dashboard'">← Back</a>
+
+<div class="card form-box" style="max-width:520px;">
+    <form action="/predict2" method="POST">
+        <label>💰 Your Budget (₹)</label>
+        <div class="slider-value">₹ <span id="budgetValue">50,00,000</span></div>
+        <input type="range" min="500000" max="50000000" step="500000" name="budget"
+               value="5000000" oninput="updateBudget(this.value)">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;">
+            <span>₹5L</span><span>₹5 Cr</span>
+        </div>
+
+        <label style="margin-top:18px;">📐 Plot Size Needed (sqft)</label>
+        <input type="number" name="area_needed" placeholder="e.g. 1500" min="100" value="1500" required>
+
+        <label style="margin-top:18px;">👤 Buyer Gender</label>
+        <select name="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female (lower stamp duty)</option>
+        </select>
+
+        <label style="margin-top:18px;">🏙️ Preferred Area Type</label>
+        <select name="area_type_pref">
+            <option value="Any">Any</option>
+            <option value="Urban">Urban</option>
+            <option value="Semi-Urban">Semi-Urban</option>
+            <option value="Rural">Rural</option>
+        </select>
+
+        <label style="margin-top:18px;">📏 Max Distance from Kolhapur City</label>
+        <div class="slider-value" style="font-size:18px;"><span id="distValue">60</span> km</div>
+        <input type="range" min="5" max="60" step="5" name="max_dist_city" value="60"
+               oninput="document.getElementById('distValue').innerText=this.value">
+
+        <label style="margin-top:18px;">🎯 What Matters Most?</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px;">
+            <label class="priority-btn">
+                <input type="radio" name="priority" value="growth" checked hidden>
+                <div class="priority-inner"><span style="font-size:22px;">📈</span><span>Investment Growth</span></div>
+            </label>
+            <label class="priority-btn">
+                <input type="radio" name="priority" value="safety" hidden>
+                <div class="priority-inner"><span style="font-size:22px;">🛡️</span><span>Safety First</span></div>
+            </label>
+            <label class="priority-btn">
+                <input type="radio" name="priority" value="access" hidden>
+                <div class="priority-inner"><span style="font-size:22px;">🏥</span><span>Amenity Access</span></div>
+            </label>
+        </div>
+
+        <label style="margin-top:18px;">🔍 Advanced Filters</label>
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:16px;margin-top:8px;display:grid;gap:10px;">
+            <label class="filter-label"><input type="checkbox" name="exclude_flood"> 🌊 Exclude High Flood Risk</label>
+            <label class="filter-label">Min Growth Rate:
+                <input type="number" name="min_growth" value="0" min="0" max="20"
+                       style="width:80px;margin-left:8px;"> % / yr
+            </label>
+            <label class="filter-label">Max Crime Level:
+                <select name="max_crime" style="width:160px;margin-left:8px;">
+                    <option value="Any">Any</option>
+                    <option value="Low">Low only</option>
+                    <option value="Medium">Low or Medium</option>
+                </select>
+            </label>
+        </div>
+
+        <button type="submit" style="margin-top:20px;">🚀 Find Best Locations</button>
+    </form>
+</div>
+
+<style>
+.priority-btn{cursor:pointer;}
+.priority-inner{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;
+border-radius:12px;background:rgba(255,255,255,0.06);border:2px solid transparent;
+font-size:12px;color:rgba(255,255,255,0.7);text-align:center;transition:0.2s;}
+.priority-btn input:checked+.priority-inner{border-color:#00c6ff;background:rgba(0,198,255,0.12);color:white;font-weight:600;}
+</style>
+
+<script>
+function updateBudget(v){document.getElementById("budgetValue").innerText=parseInt(v).toLocaleString("en-IN");}
+updateBudget(5000000);
+</script>
+</body>
+</html>

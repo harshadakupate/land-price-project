@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Report — Land AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="header">
+    <h1>🔬 AI Model Performance Report</h1>
+    <p>Transparent evaluation — multiple models compared on real holdout data</p>
+</div>
+<a class="back-btn" onclick="go('/dashboard')">← Dashboard</a>
+
+<div class="container">
+
+    <!-- Best Model Card -->
+    <div class="card" style="text-align:center;">
+        <div class="section-title">🏆 Selected Model</div>
+        <div style="font-size:26px; font-weight:800; color:#00c6ff; margin:10px 0;">
+            {{ meta.best_model }}
+        </div>
+        <div class="summary-row"><span>Test R²</span><span style="color:#00ff99;">{{ meta.test_r2 }}</span></div>
+        <div class="summary-row"><span>Test MAE</span><span>₹{{ "{:,}".format(meta.test_mae) }}/sqft</span></div>
+        <div class="summary-row"><span>Holdout R²</span><span style="color:#ffc800;">{{ meta.holdout_r2 }}</span></div>
+        <div class="summary-row"><span>Holdout MAE</span><span>₹{{ "{:,}".format(meta.holdout_mae) }}/sqft</span></div>
+        <div style="margin-top:14px; font-size:12px; color:rgba(255,255,255,0.45); line-height:1.6;">
+            R² = 1.0 is perfect. Holdout R² tests on villages<br>the model has <strong>never seen during training</strong>.
+        </div>
+    </div>
+
+    <!-- Model Comparison Table -->
+    <div class="card">
+        <div class="section-title">📊 Model Comparison</div>
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.12);">
+                    <th style="text-align:left; padding:8px 0; color:rgba(255,255,255,0.5);">Model</th>
+                    <th style="text-align:center; padding:8px 0; color:rgba(255,255,255,0.5);">R²</th>
+                    <th style="text-align:center; padding:8px 0; color:rgba(255,255,255,0.5);">MAE (₹/sqft)</th>
+                    <th style="text-align:center; padding:8px 0; color:rgba(255,255,255,0.5);">CV R²</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in meta.comparison %}
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);
+                    {% if m.model == meta.best_model %}background:rgba(0,198,255,0.08);{% endif %}">
+                    <td style="padding:9px 0; font-weight:{% if m.model==meta.best_model %}700{% else %}400{% endif %};
+                        color:{% if m.model==meta.best_model %}#00c6ff{% else %}white{% endif %};">
+                        {% if m.model == meta.best_model %}🏆 {% endif %}{{ m.model }}
+                    </td>
+                    <td style="text-align:center; padding:9px 0; color:#00ff99;">{{ m.r2 }}</td>
+                    <td style="text-align:center; padding:9px 0;">{{ "{:,}".format(m.mae) }}</td>
+                    <td style="text-align:center; padding:9px 0; color:#ffc800;">
+                        {{ m.cv_r2 }} ± {{ m.cv_std }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top:12px; font-size:12px; color:rgba(255,255,255,0.4);">
+            CV R² = 5-fold cross-validation on training data. More reliable than single test split.
+        </div>
+    </div>
+
+    <!-- Feature Importance -->
+    <div class="card">
+        <div class="section-title">🔍 Feature Importance</div>
+        <canvas id="fiChart" style="max-height:280px;"></canvas>
+        <div style="margin-top:12px; font-size:12px; color:rgba(255,255,255,0.4);">
+            Higher % = more influence on predicted Rate_per_sqft.
+        </div>
+    </div>
+
+</div>
+
+<!-- Holdout Validation -->
+<div class="container-full" style="padding:0 24px;">
+    <div class="card">
+        <div class="section-title">🧪 Holdout Validation — 5 Villages Never Seen in Training</div>
+        <p style="font-size:13px; color:rgba(255,255,255,0.55); margin-bottom:16px;">
+            These villages were completely excluded from training. This is the most honest test of real-world performance.
+        </p>
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.12);">
+                    <th style="text-align:left; padding:8px 0; color:rgba(255,255,255,0.5);">Village</th>
+                    <th style="text-align:center; padding:8px 0; color:rgba(255,255,255,0.5);">Actual Avg Rate</th>
+                    <th style="text-align:center; padding:8px 0; color:rgba(255,255,255,0.5);">ML Predicted</th>
+                    <th style="text-align:center; padding:8px 0; color:rgba(255,255,255,0.5);">Error %</th>
+                    <th style="text-align:center; padding:8px 0; color:rgba(255,255,255,0.5);">Verdict</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in meta.holdout_results %}
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <td style="padding:10px 0; font-weight:600;">{{ h.village }}</td>
+                    <td style="text-align:center; padding:10px 0;">₹{{ "{:,}".format(h.actual) }}/sqft</td>
+                    <td style="text-align:center; padding:10px 0; color:#00c6ff;">₹{{ "{:,}".format(h.predicted) }}/sqft</td>
+                    <td style="text-align:center; padding:10px 0;
+                        color:{% if h.error_pct < 15 %}#00ff99{% elif h.error_pct < 30 %}#ffc800{% else %}#ff6b6b{% endif %};">
+                        {{ h.error_pct }}%
+                    </td>
+                    <td style="text-align:center; padding:10px 0;">
+                        {% if h.error_pct < 15 %}✅ Good
+                        {% elif h.error_pct < 30 %}🟡 Acceptable
+                        {% else %}⚠️ High Error{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top:14px; font-size:12px; color:rgba(255,255,255,0.4);">
+            Note: Ningudage has highest error because it's a high-flood-risk agricultural zone —
+            the model has fewer similar examples. This is a known limitation of synthetic training data.
+        </div>
+    </div>
+</div>
+
+<!-- R² comparison chart -->
+<div class="container-full" style="padding:0 24px 20px;">
+    <div class="card">
+        <div class="section-title">📈 Model R² Comparison</div>
+        <canvas id="r2Chart" style="max-height:240px;"></canvas>
+    </div>
+</div>
+
+<div class="logout-wrap">
+    <a href="/dashboard"><button>🏠 Dashboard</button></a>
+</div>
+
+<script>
+function go(p) { window.location.href = p; }
+
+// Feature importance chart
+const fiLabels = [{% for k,v in meta.feature_importance.items() %}"{{ k }}", {% endfor %}];
+const fiVals   = [{% for k,v in meta.feature_importance.items() %}{{ v }}, {% endfor %}];
+
+new Chart(document.getElementById("fiChart"), {
+    type: 'bar',
+    data: {
+        labels: fiLabels.slice(0,8),
+        datasets: [{ label: "Importance (%)", data: fiVals.slice(0,8),
+            backgroundColor: ["#00c6ff","#0072ff","#00ff99","#ffc800","#ff6a00","#ff0080","#9b59b6","#1abc9c"],
+            borderRadius: 6 }]
+    },
+    options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks:{color:"rgba(255,255,255,0.6)"}, grid:{color:"rgba(255,255,255,0.06)"},
+                 title:{display:true,text:"Importance (%)",color:"rgba(255,255,255,0.5)"} },
+            y: { ticks:{color:"rgba(255,255,255,0.8)"}, grid:{color:"rgba(255,255,255,0.04)"} }
+        }
+    }
+});
+
+// R² comparison chart
+const modelNames = [{% for m in meta.comparison %}"{{ m.model }}", {% endfor %}];
+const r2Vals     = [{% for m in meta.comparison %}{{ m.r2 }}, {% endfor %}];
+const cvVals     = [{% for m in meta.comparison %}{{ m.cv_r2 }}, {% endfor %}];
+
+new Chart(document.getElementById("r2Chart"), {
+    type: 'bar',
+    data: {
+        labels: modelNames,
+        datasets: [
+            { label: "Test R²",  data: r2Vals, backgroundColor: "rgba(0,198,255,0.7)", borderRadius:6 },
+            { label: "CV R²",    data: cvVals, backgroundColor: "rgba(0,255,153,0.5)", borderRadius:6 },
+        ]
+    },
+    options: {
+        plugins: { legend: { labels: { color:"rgba(255,255,255,0.8)" } } },
+        scales: {
+            x: { ticks:{color:"rgba(255,255,255,0.7)"}, grid:{color:"rgba(255,255,255,0.06)"} },
+            y: { min:0.5, max:1.0, ticks:{color:"rgba(255,255,255,0.7)"}, grid:{color:"rgba(255,255,255,0.06)"} }
+        }
+    }
+});
+</script>
+</body>
+</html>
