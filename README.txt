@@ -120,12 +120,6 @@ Steps:
 
 ---
 
-## 📸 Screenshots
-
-(Add screenshots of your project here after deployment)
-
----
-
 ## 👩‍💻 Author
 
 **Harshada Kupate**
