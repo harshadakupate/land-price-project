@@ -1,65 +1,147 @@
-============================================================
-  LAND AI — Kolhapur Land Price Prediction System
-  Final AIML Project | 3rd Year
-============================================================
+# 🌍 Land Price Prediction System
 
-SETUP INSTRUCTIONS
-------------------
-1. Install dependencies:
-   pip install flask pandas numpy scikit-learn joblib openpyxl
+A Machine Learning based web application that predicts land prices in Kolhapur district based on user inputs like location, area, and land type.
 
-2. Train the model (generates model_clean.pkl):
-   python model_final.py
+---
 
-3. Run the app:
-   python app.py
+## 🚀 Features
 
-4. Open browser: http://127.0.0.1:5000
-   Login: admin / 1234
+* 🔍 Predict land prices using ML model
+* 📊 Interactive dashboard
+* 🧠 Model report and insights
+* 🧾 Multiple input sections for different predictions
+* 🌐 Web-based interface using Flask
 
-FILES INCLUDED
---------------
-app.py                          - Main Flask application
-model_final.py                  - Training script (run this first)
-kolhapur_land_dataset_FINAL.csv - Dataset (3080 rows, 76 villages)
-model_clean.pkl                 - Trained model (pre-generated)
-model_metadata.json             - Model comparison results
-feature_columns.pkl             - Feature column list
-requirements.txt                - Python dependencies
+---
 
-templates/
-  login.html                    - Login page
-  dashboard.html                - Dashboard with model stats
-  model_report.html             - AI Model Performance Report
-  section1_input/output.html    - Land Price Prediction
-  section2_input/output.html    - Smart Recommendation + Map
-  section3_input/output.html    - Location Comparison
-  error.html                    - Error page
+## 🛠️ Tech Stack
 
-static/css/style.css            - Master stylesheet
-static/js/script.js             - Master JS
+* **Frontend:** HTML, CSS, JavaScript
+* **Backend:** Python (Flask)
+* **Machine Learning:** Scikit-learn
+* **Data Processing:** Pandas, NumPy
 
-FEATURES IMPLEMENTED
---------------------
-1. Multiple Model Comparison  (RF, GBM, Linear, Ridge)
-2. Feature Importance Chart   (in Section 1 + Model Report)
-3. Holdout Validation         (5 unseen villages tested)
-4. Leaflet Map                (Section 2 live map)
-5. Confidence Interval        (±range shown in Section 1 & 3)
-6. Investment Signal          (BUY NOW / HOLD / WAIT / CAUTION)
-7. Gender-based Stamp Duty    (Maharashtra real rules)
+---
 
-DATASET
--------
-- 76 real Kolhapur district villages across 12 talukas
-- 3080 rows (40 rows/village with realistic variation)
-- Stamp duty: Urban M=6% F=5% | Semi-Urban M=4% F=3% | Rural M=3% F=2%
-- Registration always 1%, capped at Rs.30,000
+## 📁 Project Structure
 
-MODEL PERFORMANCE
------------------
-Best Model: Gradient Boosting
-Test R2:    0.9858
-Holdout R2: 0.7292 (on 5 completely unseen villages)
-MAE:        Rs.77/sqft
-============================================================
+```
+land_final/
+│
+├── app.py
+├── model_clean.pkl
+├── kolhapur_land_dataset_FINAL.csv
+├── requirements.txt
+├── Procfile
+│
+├── static/
+│   ├── css/
+│   └── js/
+│
+├── templates/
+│   ├── login.html
+│   ├── dashboard.html
+│   ├── section1_input.html
+│   ├── section1_output.html
+│   ├── section2_input.html
+│   ├── section2_output.html
+│   ├── section3_input.html
+│   ├── section3_output.html
+│   ├── model_report.html
+│   └── error.html
+```
+
+---
+
+## ⚙️ Installation (Run Locally)
+
+1. Clone the repository:
+
+```
+git clone https://github.com/harshadakupate/land-price-project.git
+```
+
+2. Navigate to project folder:
+
+```
+cd land-price-project
+```
+
+3. Install dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+4. Run the application:
+
+```
+python app.py
+```
+
+5. Open in browser:
+
+```
+http://127.0.0.1:5000/
+```
+
+---
+
+## 🌐 Deployment
+
+This project is deployed using Render.
+
+Steps:
+
+* Push code to GitHub
+* Connect GitHub repo to Render
+* Set build command: `pip install -r requirements.txt`
+* Set start command: `gunicorn app:app`
+
+---
+
+## 📊 Dataset
+
+* Contains land data from Kolhapur district
+* Includes features like:
+
+  * Location
+  * Area type
+  * Land size
+  * Price
+
+---
+
+## 🧠 Machine Learning Model
+
+* Algorithm used: Regression Model
+* Trained using Scikit-learn
+* Model file: `model_clean.pkl`
+
+---
+
+## 📸 Screenshots
+
+(Add screenshots of your project here after deployment)
+
+---
+
+## 👩‍💻 Author
+
+**Harshada Kupate**
+AIML Student | Full Stack Learner
+
+---
+
+## 📌 Future Improvements
+
+* Add user authentication system
+* Improve UI/UX design
+* Add more accurate prediction models
+* Integrate Power BI dashboard
+
+---
+
+## ⭐ Show Your Support
+
+If you like this project, give it a ⭐ on GitHub!
